@@ -1,3 +1,14 @@
-from core.database import engine
+from fastapi import FastAPI, Depends, Response,Request
+from contextlib import asynccontextmanager
+from app.users.routes import router as users_router
 
-print("hello world")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("app startup")
+    yield
+    print("app shutdown")
+
+
+app = FastAPI(lifespan=lifespan)
+
+app.include_router(users_router)
