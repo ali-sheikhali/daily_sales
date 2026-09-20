@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, Integer, Boolean, Text, func, DateTime, ForeignKey
 from app.core.database import Base
 from passlib.context import CryptContext
+from sqlalchemy.orm import relationship
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -11,6 +12,7 @@ class UserModels(Base):
     username = Column(String(150), nullable=False)
     password = Column(String(150), nullable=False)
 
+    stores = relationship("StoresModel", back_populates="owner")    
 
     def hash_password(self, plain_password: str) -> str:
         """Hashes the given password using bcrypt."""
