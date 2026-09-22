@@ -12,5 +12,5 @@ class StoreManagerModels(Base):
     create_at = Column(DateTime, server_default=func.now(), nullable=False)
     update_at = Column(DateTime, server_default=func.now(), onupdate=func.now() , nullable=False)
 
-    owner_store_manager = relationship("UserModels", back_populates="managed_stores")
+    owner = relationship("UserModels", back_populates="managed_stores")
     store_id_store_manager = relationship("StoresModel", back_populates="managers")

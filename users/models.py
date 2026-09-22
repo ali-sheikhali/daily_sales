@@ -15,8 +15,8 @@ class UserModels(Base):
     stores = relationship("StoresModel", back_populates="owner")  
       
     managed_stores = relationship(
-        "StoreManagerModels",
-        back_populates="owner"
+    "StoreManagerModels",
+    back_populates="owner"
     )
 
     def hash_password(self, plain_password: str) -> str:

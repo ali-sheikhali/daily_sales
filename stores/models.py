@@ -14,5 +14,5 @@ class StoresModel(Base):
 
     managers = relationship(
         "StoreManagerModels",
-        back_populates="store"
+        back_populates="store_id_store_manager"
     )
