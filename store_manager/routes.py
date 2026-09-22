@@ -40,3 +40,60 @@ async def create_new_store_manager(request: StoreManagerCreateSchema, db: Sessio
     db.refresh(new_manager)
 
     return new_manager
+
+
+@router.put("/{store_manager_id}")
+async def update_store_manager(
+    store_manager_id: int,
+    request: StoreManagerUpdate,
+    db: Session = Depends(get_db)
+):
+    # 1. Find store manager
+    store_manager = (
+        db.query(StoreManagerModels)
+        .filter_by(id=store_manager_id)
+        .first()
+    )
+
+    if not store_manager:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="store manager not found"
+        )
+
+    # 2. Check owner
+    check_user = (
+        db.query(UserModels)
+        .filter_by(id=request.owner_id)
+        .first()
+    )
+
+    if not check_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="owner not found"
+        )
+
+    # 3. Check store
+    check_store = (
+        db.query(StoresModel)
+        .filter_by(id=request.store_id)
+        .first()
+    )
+
+    if not check_store:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="store not found"
+        )
+
+    # 4. Update
+    store_manager.owner_id = request.owner_id
+    store_manager.store_id = request.store_id
+    store_manager.is_active = request.is_active
+
+    # 5. Save
+    db.commit()
+    db.refresh(store_manager)
+
+    return store_manager
