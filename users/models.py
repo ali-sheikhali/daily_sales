@@ -12,7 +12,12 @@ class UserModels(Base):
     username = Column(String(150), nullable=False)
     password = Column(String(150), nullable=False)
 
-    stores = relationship("StoresModel", back_populates="owner")    
+    stores = relationship("StoresModel", back_populates="owner")  
+      
+    managed_stores = relationship(
+        "StoreManagerModels",
+        back_populates="owner"
+    )
 
     def hash_password(self, plain_password: str) -> str:
         """Hashes the given password using bcrypt."""
