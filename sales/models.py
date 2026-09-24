@@ -11,3 +11,5 @@ class SalesModels(Base):
     amount = Column(Integer, CheckConstraint("amount > 0"), nullable=True)
     sales_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     create_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    sales = relationship("StoresModel", back_populates="stores")
