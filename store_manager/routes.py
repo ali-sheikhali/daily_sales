@@ -4,7 +4,6 @@ from typing import List
 from app.core.database import get_db
 from app.store_manager.schemas import *
 from app.store_manager.models import StoreManagerModels
-from app.store_manager.models import StoreManagerModels
 from app.stores.models import StoresModel
 from app.users.models import UserModels
 

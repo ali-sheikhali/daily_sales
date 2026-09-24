@@ -12,4 +12,4 @@ class SalesModels(Base):
     sales_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     create_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    sales = relationship("StoresModel", back_populates="stores")
+    sales = relationship("StoresModel", back_populates="stores_back_populates")
