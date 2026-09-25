@@ -27,3 +27,13 @@ async def create_new_sales(request: SalesCreateSchema , db: Session = Depends(ge
     db.commit()
 
     return sales
+
+@router.get("", response_model=List[SalesAllSalesSchema])
+async def get_all_sales(db: Session = Depends(get_db)):
+
+    get_sales = db.query(SalesModels).all()
+
+    if not get_sales:
+        raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="not any sales")
+
+    return get_sales
