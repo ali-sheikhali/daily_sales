@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Path
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
@@ -37,3 +37,45 @@ async def get_all_sales(db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="not any sales")
 
     return get_sales
+
+
+@router.get("/{store_id}", response_model=List[SalesWithStoreResponseSchema])
+async def get_store_sales(store_id: int = Path(..., gt= 0),db : Session = Depends(get_db)):
+    check_store = db.query(StoresModel).filter_by(id = store_id).first()
+
+    if not check_store:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store not found")
+
+    get_store_sales_all = db.query(SalesModels).filter_by(store_id = check_store.id).all()
+
+    return get_store_sales_all
+
+
+@router.put("/{store_id}/{sale_id}")
+async def update_store_sales(request: SalesStoreUpdateSchema, store_id: int = Path(..., gt= 0),
+                             sale_id: int = Path(gt= 0),
+                             db : Session = Depends(get_db)):
+    check_store = db.query(StoresModel).filter_by(id = store_id).first()
+    
+    if not check_store:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store not found")
+
+    sale = db.query(SalesModels).filter(
+        SalesModels.store_id == check_store.id,
+        SalesModels.id == sale_id
+    ).first()
+
+    if not sale:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="sale not found"
+        )
+
+    sale.amount = request.amount
+    sale.sales_date = request.sales_date
+
+    db.commit()
+    db.refresh(sale)
+
+    return sale
+

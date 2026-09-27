@@ -8,3 +8,12 @@ class SalesCreateSchema(BaseModel):
 class SalesAllSalesSchema(SalesCreateSchema):
     id: int
     sales_date: datetime
+
+
+class SalesWithStoreResponseSchema(SalesCreateSchema):
+    id: int
+    sales_date: datetime
+
+class SalesStoreUpdateSchema(BaseModel):
+    amount: int
+    sales_date: datetime 
