@@ -79,3 +79,18 @@ async def update_store_sales(request: SalesStoreUpdateSchema, store_id: int = Pa
 
     return sale
 
+
+@router.delete("/{store_id}/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_store_sale(store_id: int = Path(..., gt=0) , sale_id: int  = Path(..., gt=0) , db: Session = Depends(get_db)):
+
+    if not db.get(StoresModel, store_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store not found")
+
+    sale = db.query(SalesModels).filter(SalesModels.id == sale_id, SalesModels.store_id == store_id).first()
+
+    if not sale:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Sale not found")
+
+    db.delete(sale)
+    db.commit()
+    
