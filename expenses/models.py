@@ -9,6 +9,7 @@ class ExpensesModels(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)
     store_id = Column(Integer, ForeignKey("stores.id"), nullable=True)
     amount = Column(Integer, CheckConstraint("amount > 0"), nullable=True)
+    description = Column(Text, nullable=True)
     expenses_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     create_at = Column(DateTime, server_default=func.now(), nullable=False)
 
