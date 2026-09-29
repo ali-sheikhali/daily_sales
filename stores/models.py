@@ -18,3 +18,5 @@ class StoresModel(Base):
     )
 
     stores_back_populates = relationship("SalesModels", back_populates="sales")
+
+    stores_back_populates_to_expenses = relationship("ExpensesModels", back_populates="expenses")
