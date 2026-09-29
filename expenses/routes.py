@@ -49,3 +49,44 @@ async def get_expenses_by_store_id(store_id: int, db: Session = Depends(get_db))
         )
 
     return result
+
+
+# edit expense by id
+@router.patch("/{expense_id}", response_model=ExpensesGetAllResponseSchemas)
+async def edit_expenses(expense_id: int, request: ExpensesEditRequestSchemas, db: Session = Depends(get_db)):
+
+    expense = db.query(ExpensesModels).filter(ExpensesModels.id == expense_id).first()
+
+    if not expense:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="expenses not found"
+        )
+
+    update_data = request.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(expense, key, value)
+
+    db.commit()
+    db.refresh(expense)
+    return expense
+
+# delete expense by id
+@router.delete("/{expenses_id}")
+async def delete_expense(expenses_id: int, db: Session = Depends(get_db)):
+    expense = db.query(ExpensesModels).filter_by(id = expenses_id).first()
+
+    if not expense:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="expense not found"
+        )
+
+    db.delete(expense)
+    db.commit()
+
+    return JSONResponse(
+        status_code=status.HTTP_204_NO_CONTENT,
+        content={"message": "expense deleted successfully"}
+    )
