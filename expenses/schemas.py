@@ -1,16 +1,14 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class ExpensesGetAllResponseSchemas(BaseModel):
     id: int
     amount: float
-    date: str
+    expenses_date: str
     store_id: int
     description: str
-
-    class Config:
-        orm_mode = True
-
+    expenses_date: datetime
 
 class ExpensesCreateRequestSchemas(BaseModel):
     store_id: int
