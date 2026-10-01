@@ -9,7 +9,7 @@ from app.store_recipients.schemas import *
 router = APIRouter(tags=["store_recipients"], prefix="/store_recipients")
 
 
-@router.get("", response_model=List[StoreRecipient])
+@router.get("", response_model=List[StoreRecipientSchema])
 async def get_store_recipients(db: Session = Depends(get_db)):
     recipients = db.query(StoreRecipient).all()
 

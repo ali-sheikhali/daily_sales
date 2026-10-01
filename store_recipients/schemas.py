@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class StoreRecipient(BaseModel):
+class StoreRecipientSchema(BaseModel):
     id: int
     store_id: int
     phone_number: str
