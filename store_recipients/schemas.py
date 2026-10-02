@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class StoreRecipientSchema(BaseModel):
@@ -8,3 +8,8 @@ class StoreRecipientSchema(BaseModel):
     is_active: bool
     created_at: str
     updated_at: str
+
+class StoreRecipientCreateSchema(BaseModel):
+    store_id: int
+    phone_number: str
+    

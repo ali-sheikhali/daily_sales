@@ -21,4 +21,4 @@ class StoresModel(Base):
 
     stores_back_populates_to_expenses = relationship("ExpensesModels", back_populates="expenses")
 
-    recipient = relationship("StoreRecipient", back_populates="stores_back_populates_to_recipient")
+    recipient = relationship("StoreRecipientModel", back_populates="stores_back_populates_to_recipient")
