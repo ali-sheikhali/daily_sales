@@ -6,13 +6,17 @@ from app.store_manager.schemas import *
 from app.store_manager.models import StoreManagerModels
 from app.stores.models import StoresModel
 from app.users.models import UserModels
+from app.users.dependencies import get_current_user
 
 router = APIRouter(tags=["store manager"], prefix="/store-manager")
 
 
-@router.get("" , response_model=List[StoreManagerListSchema])
-async def store_manager_list(db: Session = Depends(get_db)):
-    all_store_managers = db.query(StoreManagerModels).all()
+@router.get("/all" , response_model=List[StoreManagerListSchema])
+async def store_manager_list(
+    db: Session = Depends(get_db),
+    current_user: UserModels = Depends(get_current_user)
+    ):
+    all_store_managers = db.query(StoreManagerModels).filter_by(owner_id = current_user.id).all()
 
     if not all_store_managers:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="not store managers find")
@@ -21,16 +25,22 @@ async def store_manager_list(db: Session = Depends(get_db)):
 
 
 @router.post("/new")
-async def create_new_store_manager(request: StoreManagerCreateSchema, db: Session = Depends(get_db)):
+async def create_new_store_manager(
+    request: StoreManagerCreateSchema,
+    db: Session = Depends(get_db),
+    current_user: UserModels = Depends(get_current_user)
+    ):
 
-    check_user = db.query(UserModels).filter_by(id = request.owner_id).first()
-    check_store = db.query(StoresModel).filter_by(id = request.store_id).first()
-
-    if not check_user or not check_store:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="owner or store not found")
+    check_store = db.query(StoresModel).filter_by(
+         id=request.store_id,
+         owner_id=current_user.id
+         ).first()
+    
+    if not check_store:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store not found")
 
     new_manager = StoreManagerModels(
-        owner_id=request.owner_id,
+        owner_id= current_user.id,
         store_id=request.store_id
     )
 
@@ -45,54 +55,28 @@ async def create_new_store_manager(request: StoreManagerCreateSchema, db: Sessio
 async def update_store_manager(
     store_manager_id: int,
     request: StoreManagerUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserModels = Depends(get_current_user)
 ):
-    # 1. Find store manager
-    store_manager = (
-        db.query(StoreManagerModels)
-        .filter_by(id=store_manager_id)
-        .first()
-    )
+    store_manager = db.query(StoreManagerModels).filter_by(
+    id=store_manager_id,
+    owner_id=current_user.id,
+).first()
 
     if not store_manager:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="store manager not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store manager not found")
 
-    # 2. Check owner
-    check_user = (
-        db.query(UserModels)
-        .filter_by(id=request.owner_id)
-        .first()
-    )
-
-    if not check_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="owner not found"
-        )
-
-    # 3. Check store
-    check_store = (
-        db.query(StoresModel)
-        .filter_by(id=request.store_id)
-        .first()
-    )
+    check_store = db.query(StoresModel).filter_by(
+        id=request.store_id,
+        owner_id=current_user.id,
+    ).first()
 
     if not check_store:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="store not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store not found")
 
-    # 4. Update
-    store_manager.owner_id = request.owner_id
     store_manager.store_id = request.store_id
     store_manager.is_active = request.is_active
 
-    # 5. Save
     db.commit()
     db.refresh(store_manager)
-
     return store_manager
