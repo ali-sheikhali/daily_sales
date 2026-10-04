@@ -23,6 +23,8 @@ def create_access_token(user_id: int):
     return token
 
 
-if __name__ == "__main__":
-    token = create_access_token(5)
-    print(token)
+def decode_access_token(token: str):
+    try:
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+    except jwt.InvalidTokenError:  # also covers expired tokens
+        return None
