@@ -11,6 +11,7 @@ class UserModels(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(150), nullable=False)
     password = Column(String(150), nullable=False)
+    role = Column(String(50), nullable=False)
 
     stores = relationship("StoresModel", back_populates="owner")  
       

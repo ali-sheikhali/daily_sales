@@ -31,7 +31,7 @@ async def user_register(request: UserRegisterSchema, db: Session = Depends(get_d
     if check_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="user already exists")
 
-    user_obj = UserModels(username=request.username)
+    user_obj = UserModels(username=request.username, role=request.role)
     user_obj.set_password(request.password)
 
     db.add(user_obj)
