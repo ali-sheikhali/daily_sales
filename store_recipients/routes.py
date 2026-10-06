@@ -6,8 +6,9 @@ from app.core.database import get_db
 from app.store_recipients.models import StoreRecipientModel
 from app.store_recipients.schemas import *
 from app.stores.models import StoresModel
+from app.users.dependencies import get_current_user
 
-router = APIRouter(tags=["store_recipients"], prefix="/store_recipients")
+router = APIRouter(tags=["store_recipients"], prefix="/store_recipients", dependencies=[Depends(get_current_user)])
 
 
 # get all store recipients

@@ -5,8 +5,9 @@ from typing import List
 from app.core.database import get_db
 from app.expenses.models import ExpensesModels
 from app.expenses.schemas import *
+from app.users.dependencies import get_current_user
 
-router = APIRouter(tags=["expenses"], prefix="/expenses")
+router = APIRouter(tags=["expenses"], prefix="/expenses", dependencies=[Depends(get_current_user)])
 
 #  get all expenses
 @router.get("", response_model=List[ExpensesGetAllResponseSchemas])

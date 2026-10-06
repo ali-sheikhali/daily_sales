@@ -5,11 +5,11 @@ from app.core.database import get_db
 from app.sales.schemas import *
 from app.sales.models import SalesModels
 from app.stores.models import StoresModel
+from app.users.dependencies import get_current_user
 
+router= APIRouter(tags=["sales"], prefix="/sales", dependencies=[Depends(get_current_user)])
 
-router= APIRouter(tags=["sales"], prefix="/sales")
-
-
+# new sales
 @router.post("")
 async def create_new_sales(request: SalesCreateSchema , db: Session = Depends(get_db)):
 
@@ -28,17 +28,18 @@ async def create_new_sales(request: SalesCreateSchema , db: Session = Depends(ge
 
     return sales
 
-@router.get("", response_model=List[SalesAllSalesSchema])
-async def get_all_sales(db: Session = Depends(get_db)):
+# get all sales
+# @router.get("/{store_id}", response_model=List[SalesAllSalesSchema])
+# async def get_all_sales(store_id: int = Path(..., gt= 0), db: Session = Depends(get_db)):
 
-    get_sales = db.query(SalesModels).all()
+#     get_sales = db.query(SalesModels).filter(SalesModels.store_id == store_id).all()
 
-    if not get_sales:
-        raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="not any sales")
+#     if not get_sales:
+#         raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="sales not found")
 
-    return get_sales
+#     return get_sales
 
-
+# get sales by store
 @router.get("/{store_id}", response_model=List[SalesWithStoreResponseSchema])
 async def get_store_sales(store_id: int = Path(..., gt= 0),db : Session = Depends(get_db)):
     check_store = db.query(StoresModel).filter_by(id = store_id).first()
@@ -50,7 +51,7 @@ async def get_store_sales(store_id: int = Path(..., gt= 0),db : Session = Depend
 
     return get_store_sales_all
 
-
+# update sales
 @router.put("/{store_id}/{sale_id}")
 async def update_store_sales(request: SalesStoreUpdateSchema, store_id: int = Path(..., gt= 0),
                              sale_id: int = Path(gt= 0),
@@ -79,7 +80,7 @@ async def update_store_sales(request: SalesStoreUpdateSchema, store_id: int = Pa
 
     return sale
 
-
+# delete sales  
 @router.delete("/{store_id}/{sale_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_store_sale(store_id: int = Path(..., gt=0) , sale_id: int  = Path(..., gt=0) , db: Session = Depends(get_db)):
 
