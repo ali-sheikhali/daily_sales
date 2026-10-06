@@ -16,6 +16,7 @@ async def store_manager_list(
     db: Session = Depends(get_db),
     current_user: UserModels = Depends(get_current_user)
     ):
+
     all_store_managers = db.query(StoreManagerModels).filter_by(owner_id = current_user.id).all()
 
     if not all_store_managers:
@@ -24,12 +25,44 @@ async def store_manager_list(
     return all_store_managers
 
 
+@router.get("/my-stores", response_model=List[StoreManagerListSchema])
+async def my_stores(
+    db: Session = Depends(get_db),
+    current_user: UserModels = Depends(get_current_user)
+):
+    if current_user.role != "manager":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="only managers can access this"
+        )
+
+    stores = (
+        db.query(StoresModel)
+        .join(
+            StoreManagerModels,
+            StoreManagerModels.store_id == StoresModel.id
+        )
+        .filter(
+            StoreManagerModels.owner_id == current_user.id,
+            StoreManagerModels.is_active == True
+        )
+        .all()
+    )
+
+    return stores
+
 @router.post("/new")
 async def create_new_store_manager(
     request: StoreManagerCreateSchema,
     db: Session = Depends(get_db),
     current_user: UserModels = Depends(get_current_user)
     ):
+
+    if current_user.role != "owner":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="only owners can create store managers"
+        )
 
     check_store = db.query(StoresModel).filter_by(
          id=request.store_id,
@@ -39,10 +72,29 @@ async def create_new_store_manager(
     if not check_store:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store not found")
 
+    check_user = db.query(UserModels).filter_by(
+        id=request.owner_id
+    ).first()
+
+    if not check_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="user not found"
+        )
+
+    # 3. Check that selected user is a manager
+    if check_user.role != "manager":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="user is not a manager"
+        )
+
+    # 4. Connect manager to store
     new_manager = StoreManagerModels(
-        owner_id= current_user.id,
+        owner_id=request.owner_id,
         store_id=request.store_id
     )
+
 
     db.add(new_manager)
     db.commit()
