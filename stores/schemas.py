@@ -6,6 +6,7 @@ class StoreCreateSchema(BaseModel):
 
 class StoreListSchema(StoreCreateSchema):
     id: int
+    owner_id: int = Field(..., description="owner that make store") 
     pass    
 
 
