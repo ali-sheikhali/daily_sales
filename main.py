@@ -6,6 +6,7 @@ from app.store_manager.routes import router as stores_manager_router
 from app.sales.routes import router as sales_router
 from app.expenses.routes import router as expenses_router
 from app.store_recipients.routes import router as store_recipients_router
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,3 +23,11 @@ app.include_router(stores_manager_router)
 app.include_router(sales_router)
 app.include_router(expenses_router)
 app.include_router(store_recipients_router)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
