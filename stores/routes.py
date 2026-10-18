@@ -45,3 +45,22 @@ async def create_stores(
     db.refresh(store)
 
     return store
+
+
+@router.delete("/{store_id}")
+async def delete_store(store_id: int,
+                       db: Session = Depends(get_db),
+                       current_user: UserModels = Depends(get_current_user)):
+
+    if current_user.role == "manager":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You are not allowed to delete store")
+
+    store = db.query(StoresModel).filter_by(id=store_id, owner_id=current_user.id).first()
+
+    if not store:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Store not found")
+
+    db.delete(store)
+    db.commit()
+
+    return JSONResponse(content={"message": "Store deleted successfully"}, status_code=status.HTTP_200_OK)
