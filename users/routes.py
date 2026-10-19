@@ -11,8 +11,8 @@ router = APIRouter(tags=["users"], prefix="/users")
 
 
 @router.post("/login")
-async def user_login(request: UserLoginSchema , db: Session = Depends(get_db)):
-    user = db.query(UserModels).filter_by(username = request.username).first()
+async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
+    user = db.query(UserModels).filter_by(username=request.username).first()
 
     if not user or not user.verify_password(request.password):
         raise HTTPException(
@@ -24,16 +24,24 @@ async def user_login(request: UserLoginSchema , db: Session = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.post("/register")
+@router.post(
+    "/register",
+    response_model=UserRegisterResponseSchema,
+    status_code=status.HTTP_201_CREATED,
+)
 async def user_register(request: UserRegisterSchema, db: Session = Depends(get_db)):
-    check_user = db.query(UserModels).filter_by(username = request.username).first()
+    check_user = db.query(UserModels).filter_by(
+        username=request.username).first()
 
     if check_user:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="user already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="user already exists")
 
     user_obj = UserModels(username=request.username, role=request.role)
     user_obj.set_password(request.password)
 
     db.add(user_obj)
     db.commit()
-    return JSONResponse(content={"detail": "user register successfully"})
+    db.refresh(user_obj)  # loads the generated id
+
+    return user_obj

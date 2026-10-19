@@ -22,6 +22,10 @@ async def store_detail(
     db: Session = Depends(get_db),
     current_user: UserModels = Depends(get_current_user)
 ):
+
+    if current_user.role == "manager":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You are not allowed to view stores")
+    
     result = db.query(StoresModel).filter_by(owner_id = current_user.id).all()
 
     return result

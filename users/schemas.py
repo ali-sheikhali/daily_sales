@@ -14,3 +14,9 @@ class UserRegisterSchema(UserLoginSchema):
         if not password_confirm == validation.data.get("password"):
             raise ValueError("confirm password not match")
         return password_confirm    
+
+
+class UserRegisterResponseSchema(BaseModel):
+    id: int = Field(..., description="id of user")
+    username: str = Field(..., max_length=150, description="username of user")
+    role: Literal["owner", "manager"] = Field(..., description="role of user")
