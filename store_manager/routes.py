@@ -64,16 +64,15 @@ async def create_new_store_manager(
             detail="only owners can create store managers"
         )
 
-    check_store = db.query(StoresModel).filter_by(
-         id=request.store_id,
-         owner_id=current_user.id
+    check_store = db.query(StoresModel).filter(
+         StoresModel.id==request.store_id,
          ).first()
     
     if not check_store:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="store not found")
 
     check_user = db.query(UserModels).filter_by(
-        id=request.owner_id
+        id=request.user_id
     ).first()
 
     if not check_user:
@@ -91,7 +90,7 @@ async def create_new_store_manager(
 
     # 4. Connect manager to store
     new_manager = StoreManagerModels(
-        owner_id=request.owner_id,
+        owner_id=request.user_id,
         store_id=request.store_id
     )
 
