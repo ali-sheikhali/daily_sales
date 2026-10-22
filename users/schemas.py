@@ -20,3 +20,12 @@ class UserRegisterResponseSchema(BaseModel):
     id: int = Field(..., description="id of user")
     username: str = Field(..., max_length=150, description="username of user")
     role: Literal["owner", "manager"] = Field(..., description="role of user")
+
+
+class UserLoginResponseSchema(BaseModel):
+    access_token: str = Field(..., description="access token of user")
+    token_type: str = Field(..., description="token type of user")
+    username: str = Field(..., description="username of user")
+    role: Literal["owner", "manager"] = Field(..., description="role of user")
+    id: int = Field(..., description="id of user")
+    store_id: int | None = Field(default=None, description="store id")
