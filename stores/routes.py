@@ -21,12 +21,12 @@ async def stores_list(db: Session = Depends(get_db)):
 @router.get("", response_model=List[StoreListSchema])
 async def store_detail(
     db: Session = Depends(get_db),
-    store: StoresModel = Depends(check_store_access),
+    # store: StoresModel = Depends(check_store_access),
     current_user: UserModels = Depends(get_current_user)
 ):
 
     if current_user.role == "manager":
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="You are not allowed to view stores")
 
     result = db.query(StoresModel).filter_by(owner_id=current_user.id).all()
