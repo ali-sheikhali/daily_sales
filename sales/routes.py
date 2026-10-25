@@ -6,6 +6,7 @@ from app.sales.schemas import *
 from app.sales.models import SalesModels
 from app.stores.models import StoresModel
 from app.users.dependencies import get_current_user
+from app.users.permissions import check_store_access
 
 router= APIRouter(tags=["sales"], prefix="/sales", dependencies=[Depends(get_current_user)])
 
@@ -41,7 +42,9 @@ async def create_new_sales(request: SalesCreateSchema , db: Session = Depends(ge
 
 # get sales by store
 @router.get("/{store_id}", response_model=List[SalesWithStoreResponseSchema])
-async def get_store_sales(store_id: int = Path(..., gt= 0),db : Session = Depends(get_db)):
+async def get_store_sales(store_id: int = Path(..., gt= 0),
+                          store: StoresModel = Depends(check_store_access),
+                          db : Session = Depends(get_db)):
     check_store = db.query(StoresModel).filter_by(id = store_id).first()
 
     if not check_store:
